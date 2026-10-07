@@ -82,6 +82,44 @@ built-in tricks are complete examples, such as the [spin](lua/inline_skates/tric
 
 To give tricks more controls, add fields to the skater's input with the [`InlineSkatesReadInput`](#tricks) hook.
 
+Every registered trick gets its own card in the **Tricks** chapter of the skate guide, showing its `name`, `keys` and
+`description`. The card says where the trick can be done, in the air or on the ground, based on its `contact`:
+
+```lua
+-- Shown in the skate guide. Bracketed binds are drawn as the key the player has bound to them
+TRICK.keys = "[+attack2] + [+back]"
+TRICK.description = "Your hand reaches behind to grab the heel of your skate."
+```
+
+## Adding your own guide chapters
+Using the **Skate Guide** binder (or running `inline_skates_guide`) opens a window of chapters on skating. Each chapter
+is a `cl_` file in `lua/inline_skates/guide/`, and the addon loads every file in that folder on the client, so another
+addon can add a chapter by putting a file there too:
+
+```lua
+-- lua/inline_skates/guide/cl_myaddon_grinds.lua
+inlineSkates.guide.registerChapter({
+  id = "myaddon_grinds",
+  title = "Grinds",
+  -- Chapters are sorted by this. The built-in ones are 10, 20, 30, 40 and 50
+  order = 45,
+  -- A list of blocks, or a function returning one that runs each time the chapter is shown
+  content = {
+    "A plain string is a paragraph of text.",
+    { type = "heading", text = "Rails" },
+    { type = "controls", rows = { { "[+use]", "Grind the rail you're on" } } },
+    { type = "tip", text = "Grinds combine with tricks." },
+    { type = "card", title = "Soul grind", tag = "on a rail", keys = "[+duck]", text = "Locks onto the rail." },
+  },
+})
+```
+
+Text in brackets in `keys` is drawn as a keycap. A bracketed bind such as `[+forward]` is drawn as whichever key the
+player has bound to it. To add a block type of your own, call `inlineSkates.guide.registerBlockType(name, build)`,
+where `build(parent, block)` adds the block's panels to `parent`, docked to the top. The built-in block types are in
+[`lua/inline_skates/cl_guide.lua`](lua/inline_skates/cl_guide.lua), and the built-in chapters in
+[`lua/inline_skates/guide/`](lua/inline_skates/guide/).
+
 ## Hooks
 These hooks let gamemodes and other addons react to skaters. They run on the server, except for the HUD ones.
 

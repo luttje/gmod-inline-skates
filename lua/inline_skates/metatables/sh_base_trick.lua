@@ -10,6 +10,13 @@ BASE_TRICK.name = nil
 --- Where the skates may be while the trick is done: "none" in the air, "ground" rolling on the ground.
 BASE_TRICK.contact = { none = true, ground = nil }
 
+--- Shown in the guide binder: the keys that do the trick. Bracketed text is drawn as a key, and a bracketed bind is
+--- drawn as whichever key the player has bound to it, such as "Double-tap [+back]" for double-tapping S.
+BASE_TRICK.keys = nil
+
+--- Shown in the guide binder: what the trick does. Where it can be done is taken from `contact`.
+BASE_TRICK.description = nil
+
 --- Whether the trick turns the skater's whole body over, which skips the crash check and the balance, and holds the
 --- camera still.
 BASE_TRICK.rotatesSkater = false

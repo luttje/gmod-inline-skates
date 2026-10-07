@@ -18,8 +18,6 @@
 --     })
 --   end)
 
-local DEFAULT_CATEGORY = "Rides"
-
 -- Definition keys that are copied as-is onto the entity class. Left out keys fall back to the defaults.
 local DEFINITION_FIELDS = {
   -- Spawn menu icon material, e.g. "entities/myskates.png". Defaults to "entities/<class>.png".
@@ -111,7 +109,7 @@ function inlineSkates.registerModel(id, definition)
     Type = "anim",
     Base = inlineSkates.ENTITY_CLASS,
     PrintName = definition.name or id,
-    Category = definition.category or DEFAULT_CATEGORY,
+    Category = definition.category or inlineSkates.SPAWN_CATEGORY,
     Spawnable = true,
     InlineSkatesModelId = id,
   }

@@ -2,6 +2,8 @@ local TRICK = {}
 
 TRICK.id = "mute_grab"
 TRICK.name = "Mute grab"
+TRICK.keys = "[+attack]"
+TRICK.description = "Your right skate crosses in front and your left hand reaches across to grab its toe."
 TRICK.contact = { none = true }
 
 local POSE_SPEED = 900

@@ -7,6 +7,7 @@ end
 inlineSkates = inlineSkates or {}
 
 inlineSkates.ENTITY_CLASS = "sent_inline_skates"
+inlineSkates.SPAWN_CATEGORY = "Rides"
 
 --- Includes a file from lua/inline_skates/, sending it to clients and/or running it depending on its cl_, sh_ or sv_
 --- prefix.
@@ -50,10 +51,17 @@ inlineSkates.includePrefixed("sv_editor.lua")
 
 inlineSkates.includePrefixed("cl_config.lua")
 inlineSkates.includePrefixed("cl_options.lua")
+inlineSkates.includePrefixed("cl_draw.lua")
 inlineSkates.includePrefixed("cl_ik.lua")
 inlineSkates.includePrefixed("cl_skate_parts.lua")
 inlineSkates.includePrefixed("cl_hooks.lua")
 inlineSkates.includePrefixed("cl_editor.lua")
+inlineSkates.includePrefixed("cl_guide.lua")
+inlineSkates.includePrefixed("cl_trick_hud.lua")
+
+for _, fileName in ipairs((file.Find("inline_skates/guide/*.lua", "LUA"))) do
+  inlineSkates.includePrefixed(fileName, "guide/")
+end
 
 --- How many degrees `direction` points above the horizon, negative when below it.
 --- @param direction Vector Normalized

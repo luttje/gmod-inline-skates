@@ -22,11 +22,6 @@ local BODY_LOOK_MAX_YAW = 120
 local BODY_LOOK_MIN_PITCH = -60
 local BODY_LOOK_MAX_PITCH = 80
 
--- Landed tricks stay on screen this long (s), fading out over the last part.
-local LANDED_TRICKS_DURATION = 2.5
-local LANDED_TRICKS_FADE = 0.6
-local LANDED_TRICKS_COLOR = Color(255, 220, 90)
-
 local LEAN_GAUGE_LENGTH = 60
 local LEAN_GAUGE_MARKERS = { -45, 0, 45 }
 local DEBUG_PANEL_LINE_HEIGHT = 14
@@ -216,9 +211,6 @@ local smoothedFrame = -1
 -- The skater's look from before a flip, held until it lands.
 local heldRiderLook = nil
 
--- Tricks landed last, shown on the HUD: `{ text, at }`.
-local landedTricks = nil
-
 hook.Add("Think", "inlineSkates.trackFootView", function()
   local player = LocalPlayer()
 
@@ -241,23 +233,6 @@ end)
 hook.Add("NotifyShouldTransmit", "inlineSkates.stopSoundLoops", function(entity, shouldTransmit)
   if (not shouldTransmit and entity.IsInlineSkates and entity.soundLoops) then
     entity:StopSoundLoops()
-  end
-end)
-
-net.Receive("inline_skates.TricksLanded", function()
-  local names = {}
-
-  for _ = 1, net.ReadUInt(5) do
-    local trick = inlineSkates.trick.read()
-    local turns = net.ReadFloat()
-
-    if (trick) then
-      names[#names + 1] = trick:GetLandedName(turns)
-    end
-  end
-
-  if (#names > 0) then
-    landedTricks = { text = table.concat(names, " + "), at = RealTime() }
   end
 end)
 
@@ -570,38 +545,6 @@ local function drawDebugPanel(skates, speed)
   end
 end
 
-local function drawLandedTricks(x, y)
-  if (not landedTricks or not inlineSkates.getClientSettingBool("hud_tricks")) then
-    return
-  end
-
-  local age = RealTime() - landedTricks.at
-
-  if (age > LANDED_TRICKS_DURATION) then
-    landedTricks = nil
-    return
-  end
-
-  if (hook.Run("HUDShouldDraw", "InlineSkatesTricks") == false) then
-    return
-  end
-
-  local alpha = math.Clamp((LANDED_TRICKS_DURATION - age) / LANDED_TRICKS_FADE, 0, 1) * 255
-  local color = ColorAlpha(LANDED_TRICKS_COLOR, alpha)
-
-  draw.SimpleTextOutlined(
-    landedTricks.text,
-    "DermaLarge",
-    x,
-    y,
-    color,
-    TEXT_ALIGN_CENTER,
-    TEXT_ALIGN_CENTER,
-    2,
-    ColorAlpha(color_black, alpha)
-  )
-end
-
 hook.Add("HUDPaint", "inlineSkates.hud", function()
   local skates = getLocalPlayerSkates()
 
@@ -628,8 +571,6 @@ hook.Add("HUDPaint", "inlineSkates.hud", function()
       color_black
     )
   end
-
-  drawLandedTricks(centerX, speedometerY - 70)
 
   if (not inlineSkates.isDebugEnabled()) then
     return

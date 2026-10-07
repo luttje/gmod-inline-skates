@@ -54,6 +54,7 @@ end
 
 local function buildClientPanel(form)
   form:Help("Your own camera, skater and debug settings. They are saved between sessions.")
+  form:Button("Open the skate guide", "inline_skates_guide")
   form:Button("Reset to defaults", "inline_skates_reset_client")
   addSections(form, inlineSkates.clientSettingSections)
 

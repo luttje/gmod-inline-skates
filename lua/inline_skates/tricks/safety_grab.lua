@@ -2,6 +2,8 @@ local TRICK = {}
 
 TRICK.id = "safety_grab"
 TRICK.name = "Safety grab"
+TRICK.keys = "[+attack2]"
+TRICK.description = "Knees up, and your right hand grabs the outside of your right skate. Lasts as long as you hold it."
 TRICK.contact = { none = true }
 
 local POSE_SPEED = 900

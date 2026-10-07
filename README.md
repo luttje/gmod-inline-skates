@@ -23,6 +23,10 @@ start Garry's Mod.
 
 Press **E** again to take them off: they're left standing where you were.
 
+> [!TIP]
+> Spawn the **Skate Guide** binder from the same category and press **E** on it for a guide to skating and every trick.
+> Run `inline_skates_guide` in the console to open the guide anywhere.
+
 ## Controls
 
 ### Skating
@@ -35,7 +39,7 @@ Press **E** again to take them off: they're left standing where you were.
 | W (above the top of a quarter pipe) | Spine transfer: carries you over the top and into the quarter pipe behind it |
 | Shift | Sprint: longer, faster strides |
 | Ctrl | Tuck down low: no pushing, but less drag, so you pick up speed downhill |
-| Space (hold) | Crouch, charging the jump. Let go to jump: the longer you held, the higher |
+| Space (hold) | Crouch, charging the jump. Let go to jump: the longer you hold it, the higher you go |
 | E | Take the skates off |
 
 > [!TIP]

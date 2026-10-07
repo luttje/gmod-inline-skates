@@ -2,6 +2,8 @@ local TRICK = {}
 
 TRICK.id = "christ_air"
 TRICK.name = "Christ air"
+TRICK.keys = "[+duck]"
+TRICK.description = "Legs straight and together, back arched and arms spread wide."
 TRICK.contact = { none = true }
 -- Tucking down (Ctrl) into a jump keeps the tuck, the pose needs a fresh press in the air.
 TRICK.needsFreshInput = true
