@@ -1,9 +1,8 @@
 AddCSLuaFile()
 
--- TODO:
--- if (SERVER) then
---   resource.AddWorkshop("<workshop id>")
--- end
+if (SERVER) then
+  resource.AddWorkshop("3815197536")
+end
 
 inlineSkates = inlineSkates or {}
 

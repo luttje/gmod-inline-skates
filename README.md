@@ -8,6 +8,10 @@ side, their arms swing with every stride, they crouch into jumps, tuck down for 
 tricks.
 
 ## Installing
+**Steam Workshop (recommended):** subscribe on the
+[Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3815197536) and it will download the next time you
+start Garry's Mod.
+
 **Manually:** download this repository and put the contents of this repo in an `inline_skates` folder in
 `garrysmod/addons/`.
 

@@ -16,7 +16,7 @@
 # Add --dry-run flag to only build the .gma and see what publish command would be executed:
 #       ./tools/update-workshop.sh "Fixed spins" --dry-run
 
-WORKSHOP_ID=""
+WORKSHOP_ID="3815197536"
 
 SCRIPT_BASEDIR=$(cd "$(dirname "$0")" && pwd)
 ADDON_DIR=$(cd "$SCRIPT_BASEDIR/.." && pwd)
