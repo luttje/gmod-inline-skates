@@ -1,0 +1,106 @@
+name: Bug report
+description: Something about the inline skates addon is broken or behaves wrong.
+title: "[Bug] "
+labels: [ "bug" ]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thanks for reporting! If the bug only happens together with another addon, use the **Compatibility issue** template instead.
+      If the skates work but just don't *feel* right, use **Skating feel / tuning feedback**.
+
+- type: textarea
+  id: what-happened
+  attributes:
+    label: What happened?
+    description: Describe the bug. What did you expect to happen instead?
+    placeholder: When I jump off a ledge the skater flips over and falls through the floor.
+  validations:
+    required: true
+
+- type: textarea
+  id: steps
+  attributes:
+    label: Steps to reproduce
+    description: How can we make it happen ourselves? Mention the map if it matters.
+    placeholder: |
+      1. Load gm_construct
+      2. Spawn the inline skates and press E to put them on
+      3. Hold Space and ...
+  validations:
+    required: true
+
+- type: textarea
+  id: screenshots
+  attributes:
+    label: Screenshots or video
+    description: |
+      Show us the bug. Drag images or videos into this box, or paste a link (YouTube, Streamable, Imgur, ...).
+      Tip: `developer 1` in the console turns on the debug overlay, which makes screenshots a lot more useful.
+  validations:
+    required: true
+
+- type: textarea
+  id: errors
+  attributes:
+    label: Console errors
+    description: Copy any Lua errors from the console (open it with `~`). Leave empty if there were none.
+    render: text
+
+- type: dropdown
+  id: skates
+  attributes:
+    label: Which skates?
+    description: If they're custom skates, name it and link to it in the description above.
+    multiple: true
+    options:
+    - Built-in inline skates
+    - Custom skate model
+    - All skates
+
+- type: dropdown
+  id: session
+  attributes:
+    label: Where does it happen?
+    multiple: true
+    options:
+    - Singleplayer
+    - Multiplayer (listen server / hosting from the menu)
+    - Multiplayer (dedicated server)
+  validations:
+    required: true
+
+- type: dropdown
+  id: branch
+  attributes:
+    label: Garry's Mod branch
+    description: Found in Steam under Properties → Betas.
+    options:
+    - Default (none)
+    - x86-64
+    - dev / prerelease
+    - I don't know
+  validations:
+    required: true
+
+- type: input
+  id: gamemode
+  attributes:
+    label: Gamemode
+    placeholder: Sandbox, DarkRP, TTT, ...
+
+- type: textarea
+  id: tuning
+  attributes:
+    label: Tuning dump
+    description: If you changed any skate settings, run `inline_skates_dump_tuning` in the console and paste the output.
+    render: text
+
+- type: checkboxes
+  id: checks
+  attributes:
+    label: Checklist
+    options:
+    - label: I searched the existing issues and this hasn't been reported yet.
+      required: true
+    - label: The bug still happens with all other addons disabled (if not, use the Compatibility issue template).

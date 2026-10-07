@@ -1,0 +1,262 @@
+inlineSkates.trick = inlineSkates.trick or {}
+
+inlineSkates.includePrefixed("sh_base_trick.lua", "metatables/")
+
+local TRICKS_FOLDER = "inline_skates/tricks/"
+local FULL_TURN = 360
+
+-- How fast a held spin winds up (deg/s²).
+local SPIN_ACCEL = 5000
+-- Once let go, a spin slows into the next step at this speed per degree still to go (1/s), down to the minimum (deg/s).
+local FINISH_GAIN = 8
+local FINISH_MIN_SPEED = 240
+-- Let go within this fraction of a step past one, a spin settles back onto it.
+local SETTLE_BACK_FRACTION = 1 / 12
+-- How fast a spin settles onto the nearest whole turn (1/s), and how close counts as settled (deg).
+local STRAIGHTEN_RATE = 15
+local STRAIGHT_EPSILON = 0.5
+
+-- Tricks are sent as the id of a network string named after them.
+local NETWORK_NAME_PREFIX = "inline_skates.trick."
+local NETWORK_ID_BITS = 12
+
+local TRICK_META = FindMetaTable("inline_skates.trick")
+
+if (SERVER) then
+  util.AddNetworkString("inline_skates.TrickStates")
+  util.AddNetworkString("inline_skates.TricksLanded")
+end
+
+--- @type table[] In the order they were registered
+local tricks = {}
+--- @type table<string, table>
+local tricksById = {}
+
+--- Registers a trick, replacing any trick with the same id. Call it on both the server and the client.
+--- @param trick table `id` is required
+--- @return table? # The trick, nil when it's invalid
+function inlineSkates.trick.register(trick)
+  if (not isstring(trick.id) or trick.id == "") then
+    ErrorNoHaltWithStack("[inline_skates] inlineSkates.trick.register needs a trick with a string id.\n")
+    return nil
+  end
+
+  setmetatable(trick, TRICK_META)
+  trick.name = trick.name or trick.id
+
+  local existing = tricksById[trick.id]
+
+  if (existing) then
+    tricks[table.KeyFromValue(tricks, existing)] = trick
+  else
+    tricks[#tricks + 1] = trick
+  end
+
+  tricksById[trick.id] = trick
+
+  if (SERVER) then
+    util.AddNetworkString(NETWORK_NAME_PREFIX .. trick.id)
+  end
+
+  return trick
+end
+
+--- @param trick table
+function inlineSkates.trick.write(trick)
+  net.WriteUInt(util.NetworkStringToID(NETWORK_NAME_PREFIX .. trick.id), NETWORK_ID_BITS)
+end
+
+--- @return table? # The trick read from the net message, nil when this client doesn't have it
+function inlineSkates.trick.read()
+  local name = util.NetworkIDToString(net.ReadUInt(NETWORK_ID_BITS))
+
+  return name and inlineSkates.trick.get(name:sub(#NETWORK_NAME_PREFIX + 1))
+end
+
+--- @param id string
+--- @return table?
+function inlineSkates.trick.get(id)
+  return tricksById[id]
+end
+
+--- @return table[] # Every registered trick, in the order they were registered
+function inlineSkates.trick.getAll()
+  return tricks
+end
+
+--- @param isGrounded boolean
+--- @return string # "ground" or "none"
+function inlineSkates.trick.getContact(isGrounded)
+  return isGrounded and "ground" or "none"
+end
+
+--- @param angle number
+--- @param step number? Defaults to a whole turn
+--- @return number # The nearest multiple of `step` to `angle`
+function inlineSkates.trick.getNearestFullTurn(angle, step)
+  step = step or FULL_TURN
+
+  return math.Round(angle / step) * step
+end
+
+--- @param angle number
+--- @return number # How far into its pose a held trick is: 0 at whole turns, 1 at half turns
+function inlineSkates.trick.getPoseFraction(angle)
+  return (1 - math.cos(math.rad(angle))) * 0.5
+end
+
+--- @param ride table
+--- @return number # Degrees between the skater's up and the ground's normal
+function inlineSkates.trick.getTilt(ride)
+  return math.deg(math.acos(math.Clamp(ride.angles:Up():Dot(ride.groundNormal), -1, 1)))
+end
+
+--- @param angle number
+--- @param releaseAngle number
+--- @return number # 0 while `angle` is straight, easing up to 1 at `releaseAngle` off
+function inlineSkates.trick.getReleaseFraction(angle, releaseAngle)
+  local fraction = math.min(math.abs(math.NormalizeAngle(angle)) / releaseAngle, 1)
+
+  return math.sin(fraction * math.pi * 0.5)
+end
+
+--- @param angle number
+--- @return number # 0 while `angle` is straight, rising to 1 for the whole of a turn and falling back at its end
+function inlineSkates.trick.getTurnFraction(angle)
+  local remainder = math.abs(angle) % FULL_TURN
+
+  -- A spin that has gone round whole turns and stopped there is straight again.
+  if (remainder == 0) then
+    return 0
+  end
+
+  return inlineSkates.trick.getReleaseFraction(math.min(remainder, FULL_TURN - remainder), 60)
+end
+
+--- Settles a spin onto the nearest whole turn.
+--- @param state table
+--- @param deltaTime number
+--- @param step number? Defaults to a whole turn
+function inlineSkates.trick.straighten(state, deltaTime, step)
+  local target = inlineSkates.trick.getNearestFullTurn(state.angle, step)
+
+  state.speed = 0
+  state.angle = Lerp(1 - math.exp(-STRAIGHTEN_RATE * deltaTime), state.angle, target)
+
+  if (math.abs(state.angle - target) < STRAIGHT_EPSILON) then
+    state.angle = target
+  end
+end
+
+--- Spins while driven, and once let go carries on into the next step, so a short tap still gives one.
+--- @param state table
+--- @param isDriven boolean
+--- @param direction number 1 or -1 while driven
+--- @param maxSpeed number deg/s
+--- @param deltaTime number
+--- @param step number? What a spin finishes into once let go, defaults to a whole turn. Half a turn lets a spin end
+--- facing backwards.
+function inlineSkates.trick.spin(state, isDriven, direction, maxSpeed, deltaTime, step)
+  step = step or FULL_TURN
+
+  if (isDriven) then
+    state.speed = math.Approach(state.speed, direction * maxSpeed, SPIN_ACCEL * deltaTime)
+  else
+    local spinDirection = state.speed > 0 and 1 or -1
+    local nextStep = spinDirection > 0
+        and math.ceil(state.angle / step) * step
+        or math.floor(state.angle / step) * step
+    local remaining = math.abs(nextStep - state.angle)
+
+    if (state.speed == 0 or remaining == 0 or remaining > step * (1 - SETTLE_BACK_FRACTION)) then
+      inlineSkates.trick.straighten(state, deltaTime, step)
+      return
+    end
+
+    -- Keeps winding up to full speed, so a tap commits to the whole step, and only slows down near its end.
+    local finishSpeed = math.max(
+      math.min(math.Approach(math.abs(state.speed), maxSpeed, SPIN_ACCEL * deltaTime), remaining * FINISH_GAIN),
+      FINISH_MIN_SPEED
+    )
+
+    if (finishSpeed * deltaTime >= remaining) then
+      state.angle, state.speed = nextStep, 0
+      return
+    end
+
+    state.speed = spinDirection * finishSpeed
+  end
+
+  state.angle = state.angle + state.speed * deltaTime
+end
+
+--- Holds a pose half a turn in while driven, and once let go carries on to the next whole turn, undoing it.
+--- @param state table
+--- @param isDriven boolean
+--- @param direction number 1 or -1 while driven
+--- @param speed number deg/s
+--- @param deltaTime number
+function inlineSkates.trick.hold(state, isDriven, direction, speed, deltaTime)
+  local isPosed = state.angle % FULL_TURN ~= 0
+
+  -- Driving the other way mid-pose finishes the current pose first.
+  if (isDriven and isPosed and direction ~= state.direction) then
+    isDriven = false
+  end
+
+  if (not isDriven and (not isPosed or not state.direction)) then
+    inlineSkates.trick.straighten(state, deltaTime)
+    return
+  end
+
+  local poseDirection = isPosed and state.direction or direction
+  local base = poseDirection > 0
+      and math.floor(state.angle / FULL_TURN) * FULL_TURN
+      or math.ceil(state.angle / FULL_TURN) * FULL_TURN
+  local target = base + poseDirection * (isDriven and FULL_TURN * 0.5 or FULL_TURN)
+  local remaining = target - state.angle
+
+  state.direction = poseDirection
+
+  if (math.abs(remaining) <= speed * deltaTime) then
+    state.angle, state.speed = target, 0
+    return
+  end
+
+  state.speed = (remaining > 0 and 1 or -1) * speed
+  state.angle = state.angle + state.speed * deltaTime
+end
+
+if (CLIENT) then
+  net.Receive("inline_skates.TrickStates", function()
+    local skates = net.ReadEntity()
+    local tick = net.ReadUInt(32)
+    local states = {}
+
+    for _ = 1, net.ReadUInt(8) do
+      local trick = inlineSkates.trick.read()
+      local angle = net.ReadFloat()
+      local speed = net.ReadFloat()
+
+      if (trick) then
+        states[trick.id] = { angle = angle, speed = speed }
+      end
+    end
+
+    -- Each message holds every trick that isn't straight, so one arriving after a newer one is out of date.
+    if (not IsValid(skates) or not skates.IsInlineSkates or tick < (skates.lastTrickStatesTick or 0)) then
+      return
+    end
+
+    skates.lastTrickStatesTick = tick
+    skates:AddTrickSnapshot(tick * engine.TickInterval(), states)
+  end)
+end
+
+for _, fileName in ipairs((file.Find(TRICKS_FOLDER .. "*.lua", "LUA"))) do
+  if (SERVER) then
+    AddCSLuaFile(TRICKS_FOLDER .. fileName)
+  end
+
+  include(TRICKS_FOLDER .. fileName)
+end

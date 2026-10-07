@@ -1,0 +1,21 @@
+{
+  "title": "Inline Skates",
+  "type": "vehicle",
+  "tags": [
+    "fun",
+    "realism"
+  ],
+  "ignore": [
+    ".git/*",
+    ".github/*",
+    ".editorconfig",
+    ".gitignore",
+    ".vscode/*",
+    "*.md",
+    "LICENSE",
+    "modelsrc/*",
+    "mapsrc/*",
+    "tools/*",
+    "*.gma"
+  ]
+}

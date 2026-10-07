@@ -1,0 +1,14 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/inline_skates/rollerblade"
+	"$bumpmap" "models/inline_skates/rollerblade_normal"
+	"$surfaceprop" "plastic"
+
+	"$blendtintbybasealpha" 1
+
+	// A soft plastic shine.
+	"$phong" 1
+	"$phongexponent" 18
+	"$phongboost" 0.6
+	"$phongfresnelranges" "[0.25 0.6 1]"
+}

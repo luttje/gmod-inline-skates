@@ -1,0 +1,4 @@
+.vscode/
+tools/.env
+tools/build/
+*.blend1
