@@ -1,9 +1,9 @@
 local TRICK = {}
 
 TRICK.id = "frontflip"
-TRICK.name = "Front flip"
-TRICK.keys = "Double-tap [+forward]"
-TRICK.description = "Tucks up and turns you over forwards. Keep holding the second press for more flips."
+TRICK.name = "#inline_skates.trick_frontflip"
+TRICK.keys = "#inline_skates.trick_frontflip_keys"
+TRICK.description = "#inline_skates.trick_frontflip_help"
 TRICK.contact = { none = true }
 TRICK.rotatesSkater = true
 TRICK.flipsSkater = true

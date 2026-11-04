@@ -1,5 +1,6 @@
 concommand.Add("inline_skates_reset_tuning", function(player)
   if (IsValid(player) and not inlineSkates.hasPermission(player, inlineSkates.PRIVILEGES.resetTuning)) then
+    inlineSkates.lang.sendMessage(player, "options_reset_tuning_denied")
     return
   end
 
@@ -7,5 +8,9 @@ concommand.Add("inline_skates_reset_tuning", function(player)
     RunConsoleCommand(inlineSkates.tuningConVars[definition.name]:GetName(), tostring(definition.default))
   end
 
-  print("[inline_skates] Tuning reset to defaults.")
+  if (IsValid(player)) then
+    inlineSkates.lang.sendMessage(player, "options_reset_tuning_done")
+  else
+    inlineSkates.lang.print("options_reset_tuning_done")
+  end
 end)

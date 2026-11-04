@@ -169,7 +169,7 @@ end)
 
 hook.Add("InlineSkatesRegisterModels", "inlineSkates.defaultModels", function()
   inlineSkates.registerModel("default", {
-    name = "Inline Skates",
+    name = "#inline_skates.model_default",
     icon = "entities/inline_skates.png",
     model = "models/inline_skates/rollerblade.mdl",
     randomColor = true,

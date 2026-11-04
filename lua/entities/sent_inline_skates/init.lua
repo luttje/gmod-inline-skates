@@ -257,7 +257,7 @@ function ENT:PutOn(player)
   })
 
   if (roomTrace.StartSolid) then
-    player:PrintMessage(HUD_PRINTCENTER, "There's no room to put the skates on here")
+    player:PrintMessage(HUD_PRINTCENTER, "#inline_skates.no_room_put_on")
     return false
   end
 
@@ -410,7 +410,7 @@ function ENT:CanRiderLeave(player)
     if (not inlineSkates.getTuningBool("take_off_anywhere")) then
       if ((player._InlineSkatesNextNoRoomMessageAt or 0) <= CurTime()) then
         player._InlineSkatesNextNoRoomMessageAt = CurTime() + NO_ROOM_MESSAGE_INTERVAL
-        player:PrintMessage(HUD_PRINTCENTER, "There's no room to take the skates off here")
+        player:PrintMessage(HUD_PRINTCENTER, "#inline_skates.no_room_take_off")
       end
 
       return false

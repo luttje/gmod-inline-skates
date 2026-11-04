@@ -56,29 +56,29 @@ inlineSkates.draw.FONTS = FONTS
 
 local DISPLAY_FONT = "Roboto Bk"
 
-surface.CreateFont(FONTS.title, { font = DISPLAY_FONT, size = 56, weight = 700, italic = true })
-surface.CreateFont(FONTS.chapter, { font = DISPLAY_FONT, size = 42, weight = 700, italic = true })
-surface.CreateFont(FONTS.heading, { font = DISPLAY_FONT, size = 26, weight = 700, italic = true })
-surface.CreateFont(FONTS.tab, { font = DISPLAY_FONT, size = 22, weight = 700, italic = true })
-surface.CreateFont(FONTS.number, { font = DISPLAY_FONT, size = 30, weight = 700, italic = true })
-surface.CreateFont(FONTS.watermark, { font = DISPLAY_FONT, size = 240, weight = 700, italic = true })
+surface.CreateFont(FONTS.title, { font = DISPLAY_FONT, size = 56, weight = 700, italic = true, extended = true })
+surface.CreateFont(FONTS.chapter, { font = DISPLAY_FONT, size = 42, weight = 700, italic = true, extended = true })
+surface.CreateFont(FONTS.heading, { font = DISPLAY_FONT, size = 26, weight = 700, italic = true, extended = true })
+surface.CreateFont(FONTS.tab, { font = DISPLAY_FONT, size = 22, weight = 700, italic = true, extended = true })
+surface.CreateFont(FONTS.number, { font = DISPLAY_FONT, size = 30, weight = 700, italic = true, extended = true })
+surface.CreateFont(FONTS.watermark, { font = DISPLAY_FONT, size = 240, weight = 700, italic = true, extended = true })
 surface.CreateFont(FONTS.body, { font = "Roboto", size = 19, weight = 500, extended = true })
 surface.CreateFont(FONTS.small, { font = "Roboto", size = 14, weight = 800, extended = true })
 surface.CreateFont(FONTS.key, { font = "Roboto", size = 16, weight = 800, extended = true })
 
 -- Keys as `input.LookupBinding` names them, which are otherwise shown capitalized.
-local KEY_NAMES = {
-  MOUSE1 = "Left mouse",
-  MOUSE2 = "Right mouse",
-  MOUSE3 = "Middle mouse",
-  MOUSE4 = "Mouse 4",
-  MOUSE5 = "Mouse 5",
-  MWHEELUP = "Wheel up",
-  MWHEELDOWN = "Wheel down",
-  CTRL = "Ctrl",
-  RCTRL = "Right Ctrl",
-  RSHIFT = "Right Shift",
-  RALT = "Right Alt",
+local KEY_PHRASES = {
+  MOUSE1 = "key_mouse1",
+  MOUSE2 = "key_mouse2",
+  MOUSE3 = "key_mouse3",
+  MOUSE4 = "key_mouse4",
+  MOUSE5 = "key_mouse5",
+  MWHEELUP = "key_mwheelup",
+  MWHEELDOWN = "key_mwheeldown",
+  CTRL = "key_ctrl",
+  RCTRL = "key_rctrl",
+  RSHIFT = "key_rshift",
+  RALT = "key_ralt",
 }
 
 --- @param text string
@@ -127,12 +127,12 @@ end
 
 --- @return number # How wide `inlineSkates.draw.tag` draws `text`
 function inlineSkates.draw.getTagWidth(text)
-  return inlineSkates.draw.getTextWidth(text:upper(), FONTS.small) + SLANT * 2 + KEY_PADDING * 2
+  return inlineSkates.draw.getTextWidth(inlineSkates.lang.upper(text), FONTS.small) + SLANT * 2 + KEY_PADDING * 2
 end
 
 --- Draws a slanted tag with uppercase text, right-aligned to `right`.
 function inlineSkates.draw.tag(text, right, centerY, color, textColor)
-  text = text:upper()
+  text = inlineSkates.lang.upper(text)
 
   local width = inlineSkates.draw.getTagWidth(text)
   local x = right - width
@@ -151,17 +151,23 @@ function inlineSkates.draw.getKeyName(key)
   local boundKey = input.LookupBinding(key, true)
 
   if (not boundKey) then
-    return key:sub(2) .. " (unbound)"
+    return inlineSkates.lang.get("key_unbound", { bind = key:sub(2) })
   end
 
   boundKey = boundKey:upper()
 
-  return KEY_NAMES[boundKey] or (boundKey:sub(1, 1) .. boundKey:sub(2):lower())
+  if (KEY_PHRASES[boundKey]) then
+    return inlineSkates.lang.get(KEY_PHRASES[boundKey])
+  end
+
+  return boundKey:sub(1, 1) .. boundKey:sub(2):lower()
 end
 
---- @param text string Such as "Double-tap [+back]"
+--- @param text string Such as "Double-tap [+back]", or a phrase such as "#inline_skates.trick_backflip_keys"
 --- @return table[] # `{ text, isKey }` for each key and each piece of text between them
 function inlineSkates.draw.parseKeys(text)
+  text = inlineSkates.lang.translate(text)
+
   local tokens = {}
   local position = 1
 

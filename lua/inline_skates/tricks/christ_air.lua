@@ -1,9 +1,9 @@
 local TRICK = {}
 
 TRICK.id = "christ_air"
-TRICK.name = "Christ air"
+TRICK.name = "#inline_skates.trick_christ_air"
 TRICK.keys = "[+duck]"
-TRICK.description = "Legs straight and together, back arched and arms spread wide."
+TRICK.description = "#inline_skates.trick_christ_air_help"
 TRICK.contact = { none = true }
 -- Tucking down (Ctrl) into a jump keeps the tuck, the pose needs a fresh press in the air.
 TRICK.needsFreshInput = true

@@ -4,7 +4,8 @@ local BASE_TRICK = {}
 
 BASE_TRICK.__index = BASE_TRICK
 
---- Shown to players, defaults to the id.
+--- Shown to players, defaults to the id. Like `keys` and `description`, it can be a phrase such as
+--- "#inline_skates.trick_mute_grab", which is translated when shown.
 BASE_TRICK.name = nil
 
 --- Where the skates may be while the trick is done: "none" in the air, "ground" rolling on the ground.
@@ -82,15 +83,17 @@ end
 function BASE_TRICK:OnLanded(skates, rider, turns)
 end
 
---- Shown to the skater when they land the trick.
+--- Shown to the skater when they land the trick, translated. On the server, it's in English.
 --- @param turns number As returned by `Land`
 --- @return string
 function BASE_TRICK:GetLandedName(turns)
+  local name = inlineSkates.lang.translate(self.name)
+
   if (turns > 1) then
-    return string.format("%s x%s", self.name, turns)
+    return inlineSkates.lang.get("hud_turns", { trick = name, turns = turns })
   end
 
-  return self.name
+  return name
 end
 
 --- Client, changes how the body is held, before the skates and limbs are placed. `pose` holds:

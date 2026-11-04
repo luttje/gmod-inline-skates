@@ -107,6 +107,16 @@ them to any group. Without an admin mod, only admins have them.
 | `Inline Skates - Reset Tuning` | Running `inline_skates_reset_tuning` |
 | `Inline Skates - Model Editor` | Using `inline_skates_editor` |
 
+## Languages
+The addon shows its menus, guide and HUD in the language Garry's Mod is set to, and in English for anything not
+translated yet.
+
+Want to translate it into your language? Copy [`lua/inline_skates/languages/en.lua`](lua/inline_skates/languages/en.lua)
+to a file named after your language's `gmod_language` code (such as `de.lua` or `zh-CN.lua`) in the same folder,
+translate the text on the right of each `=`, and open a pull request or attach the file to an issue. The comments at
+the top of the file explain the rest. To check your translation in-game, run `gmod_language <code>` in the console
+and reopen the guide.
+
 ## Problems and suggestions
 Found a bug, a conflict with another addon, or have an idea? Please
 [open an issue](../../issues/new/choose). If something about skating feels off, the **Skating feel / tuning feedback**

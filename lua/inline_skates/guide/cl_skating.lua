@@ -1,39 +1,25 @@
 inlineSkates.guide.registerChapter({
   id = "skating",
-  title = "Skating",
+  title = "#inline_skates.chapter_skating",
   order = 20,
   content = {
-    "Push off stride by stride, carve into corners and jump up curbs. Everything here works with your skates on the "
-    .. "ground.",
+    "#inline_skates.skating_intro",
     {
       type = "controls",
       rows = {
-        { "[+forward]", "Push off. Rolling backwards, brake first" },
-        { "[+back]", "Brake. Standing still, skate backwards" },
-        { "[+moveleft] / [+moveright]", "Steer, leaning into the turn. Standing still, step round on the spot" },
-        { "[+reload]", "Turn round, from skating forwards to backwards or back, keeping your speed" },
-        { "[+speed]", "Sprint: longer, faster strides" },
-        { "[+duck]", "Tuck down low: no pushing, but less drag, so you pick up speed downhill" },
-        { "Hold [+jump]", "Crouch, charging the jump. Let go to jump: the longer you hold it, the higher you go" },
-        { "[+use]", "Take the skates off" },
+        { "[+forward]",                 "#inline_skates.skating_push" },
+        { "[+back]",                    "#inline_skates.skating_brake" },
+        { "[+moveleft] / [+moveright]", "#inline_skates.skating_steer" },
+        { "[+reload]",                  "#inline_skates.skating_turn_round" },
+        { "[+speed]",                   "#inline_skates.skating_sprint" },
+        { "[+duck]",                    "#inline_skates.skating_tuck" },
+        { "#inline_skates.skating_jump_keys", "#inline_skates.skating_jump" },
+        { "[+use]",                     "#inline_skates.skating_take_off" },
       },
     },
-    {
-      type = "tip",
-      text = "Skating backwards, the camera looks the way you're going and steering still turns you the way you'd "
-          .. "expect from it. Prefer the camera to stay behind your back? Turn off Camera looks where you go under "
-          .. "Options → Inline Skates → Client.",
-    },
-    { type = "heading", text = "Falling" },
-    {
-      type = "tip",
-      text = "Hitting a wall hard, or rolling fast into a curb you can't roll over, knocks you over. Jump up curbs "
-          .. "instead.",
-    },
-    {
-      type = "tip",
-      text = "Water slows you down, and skating in until you're half under knocks you over. Server admins can change "
-          .. "both, or turn the falling off, under Water in the server settings.",
-    },
+    { type = "tip",     text = "#inline_skates.skating_tip_backwards" },
+    { type = "heading", text = "#inline_skates.skating_falling" },
+    { type = "tip",     text = "#inline_skates.skating_tip_fall" },
+    { type = "tip",     text = "#inline_skates.skating_tip_water" },
   },
 })

@@ -11,6 +11,10 @@ indent_size = 2
 [*.lua]
 max_line_length = 120
 
+# Language files keep each phrase on one line, so translators never have to join strings
+[lua/inline_skates/languages/*.lua]
+max_line_length = off
+
 [*.{yml,yaml,json}]
 indent_size = 2
 

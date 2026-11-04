@@ -1,10 +1,9 @@
 local TRICK = {}
 
 TRICK.id = "spin"
-TRICK.name = "Spin"
+TRICK.name = "#inline_skates.trick_spin"
 TRICK.keys = "[+moveleft] / [+moveright]"
-TRICK.description = "Spins you round in half turns: 180, 360, 540... Keep holding for more. Land a 180 and you "
-  .. "carry on skating backwards."
+TRICK.description = "#inline_skates.trick_spin_help"
 TRICK.contact = { none = true }
 TRICK.rotatesSkater = true
 -- Steering into a jump keeps carving, a spin needs a fresh press in the air.

@@ -1,8 +1,5 @@
 inlineSkates.guide = inlineSkates.guide or {}
 
-local TITLE = "SKATE GUIDE"
-local SUBTITLE = "EVERYTHING YOU NEED TO ROLL"
-
 local FRAME_WIDTH = 1040
 local FRAME_HEIGHT = 720
 local FRAME_MARGIN = 32
@@ -55,6 +52,9 @@ local getTextWidth = inlineSkates.draw.getTextWidth
 local getFontHeight = inlineSkates.draw.getFontHeight
 local getTagWidth = inlineSkates.draw.getTagWidth
 local drawTag = inlineSkates.draw.tag
+local L = inlineSkates.lang.get
+local translate = inlineSkates.lang.translate
+local upper = inlineSkates.lang.upper
 
 --- @type table<string, table>
 local chaptersById = {}
@@ -65,7 +65,9 @@ local guideFrame
 
 --- Registers a chapter, replacing any chapter with the same id.
 --- @param chapter table `id` and `content` are required. `content` is a list of blocks, or a function returning one
---- that is called each time the chapter is shown. `title` defaults to the id, and chapters are sorted by `order`.
+--- that is called each time the chapter is shown. `title` defaults to the id, and chapters are sorted by `order`. The
+--- title and the text in blocks can be phrases, such as "#inline_skates.chapter_skating", which are translated when
+--- shown.
 --- @return table? # The chapter, nil when it's invalid
 function inlineSkates.guide.registerChapter(chapter)
   local hasContent = istable(chapter.content) or isfunction(chapter.content)
@@ -97,7 +99,7 @@ function inlineSkates.guide.getChapters()
       return a.order < b.order
     end
 
-    return a.title < b.title
+    return translate(a.title) < translate(b.title)
   end)
 
   return chapters
@@ -111,7 +113,8 @@ function inlineSkates.guide.registerBlockType(name, build)
 end
 
 --- @param parent Panel
---- @param block table|string A plain string is a text block
+--- @param block table|string A plain string is a text block. Block types translate their own text, such as with
+--- `inlineSkates.lang.translate`
 function inlineSkates.guide.buildBlock(parent, block)
   if (isstring(block)) then
     block = { type = "text", text = block }
@@ -172,7 +175,7 @@ local function createLabel(parent, text, font, color)
   label:Dock(TOP)
   label:SetFont(font or FONTS.body)
   label:SetTextColor(color or COLORS.text)
-  label:SetText(text)
+  label:SetText(translate(text))
   label:SetWrap(true)
   label:SetAutoStretchVertical(true)
 
@@ -216,7 +219,7 @@ end)
 
 -- `{ type = "heading", text }`, starting a part of a chapter.
 inlineSkates.guide.registerBlockType("heading", function(parent, block)
-  local text = block.text:upper()
+  local text = upper(translate(block.text))
   local panel = vgui.Create("Panel", parent)
   panel:Dock(TOP)
   panel:DockMargin(0, BLOCK_SPACING, 0, BLOCK_SPACING)
@@ -272,7 +275,8 @@ end)
 
 -- `{ type = "tip", text }`, a hint set apart from the text around it.
 inlineSkates.guide.registerBlockType("tip", function(parent, block)
-  local tagWidth = getTagWidth("Tip")
+  local tag = L("guide_tip")
+  local tagWidth = getTagWidth(tag)
   local panel = vgui.Create("Panel", parent)
   panel:Dock(TOP)
   panel:DockMargin(0, 0, 0, BLOCK_SPACING)
@@ -285,7 +289,7 @@ inlineSkates.guide.registerBlockType("tip", function(parent, block)
     surface.SetDrawColor(COLORS.highlight)
     surface.DrawRect(0, 0, CARD_STRIPE_WIDTH * 0.5, height)
 
-    drawTag("Tip", tagWidth + CONTENT_PADDING * 0.5, ROW_PADDING * 1.5 + TAG_HEIGHT * 0.5, COLORS.highlight, COLORS.ink)
+    drawTag(tag, tagWidth + CONTENT_PADDING * 0.5, ROW_PADDING * 1.5 + TAG_HEIGHT * 0.5, COLORS.highlight, COLORS.ink)
   end
 
   createLabel(panel, block.text)
@@ -323,15 +327,17 @@ inlineSkates.guide.registerBlockType("card", function(parent, block)
     )
   end
 
+  local title = upper(translate(block.title))
+  local tag = block.tag and translate(block.tag)
   local titleRow = vgui.Create("Panel", card)
   titleRow:Dock(TOP)
   titleRow:SetTall(getFontHeight(FONTS.heading))
 
   function titleRow:Paint(width, height)
-    draw.SimpleText(block.title:upper(), FONTS.heading, 0, height * 0.5, COLORS.ink, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+    draw.SimpleText(title, FONTS.heading, 0, height * 0.5, COLORS.ink, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
-    if (block.tag) then
-      drawTag(block.tag, width, height * 0.5, COLORS.ink, COLORS.highlight)
+    if (tag) then
+      drawTag(tag, width, height * 0.5, COLORS.ink, COLORS.highlight)
     end
   end
 
@@ -383,25 +389,27 @@ local function createHeader(frame)
   header:Dock(TOP)
   header:SetTall(HEADER_HEIGHT)
 
+  local title, subtitle = L("guide_title"), L("guide_subtitle")
+
   function header:Paint(width, height)
     local bandHeight = height - STRIPE_HEIGHT
-    local titleWidth = getTextWidth(TITLE, FONTS.title)
+    local titleWidth = getTextWidth(title, FONTS.title)
     local titleBlockWidth = titleWidth + CONTENT_PADDING * 2 + TITLE_SLANT * 2
 
     surface.SetDrawColor(COLORS.panel)
     surface.DrawRect(0, 0, width, bandHeight)
     drawSlantedBox(-TITLE_SLANT, 0, titleBlockWidth, bandHeight, TITLE_SLANT, COLORS.accent)
     drawTiltedText(
-      self, TITLE, FONTS.title, CONTENT_PADDING + titleWidth * 0.5, bandHeight * 0.5, COLORS.text, COLORS.ink,
+      self, title, FONTS.title, CONTENT_PADDING + titleWidth * 0.5, bandHeight * 0.5, COLORS.text, COLORS.ink,
       TITLE_ANGLE
     )
 
     local subtitleX = titleBlockWidth - TITLE_SLANT + CONTENT_PADDING
 
     -- Left out on small screens, where it would run into the close button.
-    if (subtitleX + getTextWidth(SUBTITLE, FONTS.tab) < width - CLOSE_BUTTON_WIDTH - CONTENT_PADDING * 2) then
+    if (subtitleX + getTextWidth(subtitle, FONTS.tab) < width - CLOSE_BUTTON_WIDTH - CONTENT_PADDING * 2) then
       draw.SimpleText(
-        SUBTITLE, FONTS.tab, subtitleX, bandHeight * 0.5, COLORS.muted, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER
+        subtitle, FONTS.tab, subtitleX, bandHeight * 0.5, COLORS.muted, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER
       )
     end
 
@@ -430,18 +438,21 @@ local function createFooter(frame, chapterCount)
     surface.SetDrawColor(COLORS.accent)
     surface.DrawRect(0, 0, width, FRAME_BORDER)
 
-    local page = string.format("CHAPTER %02d / %02d", frame.chapterIndex or 0, chapterCount)
+    local page = L("guide_page", {
+      number = string.format("%02d", frame.chapterIndex or 0),
+      total = string.format("%02d", chapterCount),
+    })
 
     draw.SimpleText(page, FONTS.tab, width * 0.5, height * 0.5, COLORS.muted, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
   end
 
-  local previousButton = createSlantedButton(footer, "< PREVIOUS", function()
+  local previousButton = createSlantedButton(footer, L("guide_previous"), function()
     frame:ShowChapter(frame.chapterIndex - 1)
   end)
   previousButton:Dock(LEFT)
   previousButton:SetWide(NAV_BUTTON_WIDTH)
 
-  local nextButton = createSlantedButton(footer, "NEXT >", function()
+  local nextButton = createSlantedButton(footer, L("guide_next"), function()
     frame:ShowChapter(frame.chapterIndex + 1)
   end)
   nextButton:Dock(RIGHT)
@@ -453,9 +464,11 @@ end
 local function createSidebar(frame, chapters)
   local titleX = CONTENT_PADDING * 3
   local widestTitle = 0
+  local titles = {}
 
-  for _, chapter in ipairs(chapters) do
-    widestTitle = math.max(widestTitle, getTextWidth(chapter.title:upper(), FONTS.tab))
+  for index, chapter in ipairs(chapters) do
+    titles[index] = translate(chapter.title)
+    widestTitle = math.max(widestTitle, getTextWidth(upper(titles[index]), FONTS.tab))
   end
 
   local tabMarginRight = CONTENT_PADDING * 0.5
@@ -474,13 +487,15 @@ local function createSidebar(frame, chapters)
     surface.DrawRect(0, 0, width, height)
   end
 
-  for index, chapter in ipairs(chapters) do
+  for index, title in ipairs(titles) do
     local tab = sidebar:Add("DButton")
     tab:Dock(TOP)
     tab:DockMargin(0, 0, tabMarginRight, TAB_SPACING)
     tab:SetTall(TAB_HEIGHT)
     tab:SetText("")
-    tab:SetTooltip(chapter.title)
+    tab:SetTooltip(title)
+
+    local uppercaseTitle = upper(title)
 
     function tab:Paint(width, height)
       local isSelected = frame.chapterIndex == index
@@ -495,7 +510,7 @@ local function createSidebar(frame, chapters)
         isSelected and COLORS.text or COLORS.accent, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER
       )
       draw.SimpleText(
-        chapter.title:upper(), FONTS.tab, titleX, height * 0.5, textColor,
+        uppercaseTitle, FONTS.tab, titleX, height * 0.5, textColor,
         TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER
       )
     end
@@ -519,8 +534,8 @@ local function createChapterHeader(parent, index, chapter)
   header:DockMargin(0, 0, 0, BLOCK_SPACING)
   header:SetTall(CHAPTER_HEADER_HEIGHT)
 
-  local tag = string.format("Chapter %02d", index)
-  local title = chapter.title:upper()
+  local tag = L("guide_chapter", { number = string.format("%02d", index) })
+  local title = upper(translate(chapter.title))
 
   function header:Paint(width, height)
     drawTag(tag, getTagWidth(tag), TAG_HEIGHT * 0.5, COLORS.highlight, COLORS.ink)

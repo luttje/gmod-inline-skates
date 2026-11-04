@@ -71,7 +71,7 @@ local function addLanding(texts)
 
   table.insert(landings, 1, {
     lines = lines,
-    tag = #texts > 1 and string.format("%d-trick combo", #texts) or "Landed",
+    tag = #texts > 1 and inlineSkates.lang.get("hud_combo", { count = #texts }) or inlineSkates.lang.get("hud_landed"),
     width = textWidth + PADDING_X * 2 + SLANT * 2,
     bandHeight = bandHeight,
     height = inlineSkates.draw.TAG_HEIGHT * 0.5 + bandHeight + STRIPE_HEIGHT + SHADOW_OFFSET,
@@ -92,7 +92,7 @@ net.Receive("inline_skates.TricksLanded", function()
     local turns = net.ReadFloat()
 
     if (trick) then
-      texts[#texts + 1] = trick:GetLandedName(turns):upper()
+      texts[#texts + 1] = inlineSkates.lang.upper(trick:GetLandedName(turns))
     end
   end
 

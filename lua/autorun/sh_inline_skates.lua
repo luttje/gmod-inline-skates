@@ -7,7 +7,7 @@ end
 inlineSkates = inlineSkates or {}
 
 inlineSkates.ENTITY_CLASS = "sent_inline_skates"
-inlineSkates.SPAWN_CATEGORY = "Rides"
+inlineSkates.SPAWN_CATEGORY = "#inline_skates.spawn_category"
 
 --- Includes a file from lua/inline_skates/, sending it to clients and/or running it depending on its cl_, sh_ or sv_
 --- prefix.
@@ -38,6 +38,7 @@ function inlineSkates.includePrefixed(fileName, directory)
   end
 end
 
+inlineSkates.includePrefixed("sh_language.lua")
 inlineSkates.includePrefixed("sh_config.lua")
 inlineSkates.includePrefixed("sh_permissions.lua")
 inlineSkates.includePrefixed("sh_models.lua")

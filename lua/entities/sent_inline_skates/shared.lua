@@ -1,6 +1,6 @@
 ENT.Type = "anim"
 ENT.Base = "base_anim"
-ENT.PrintName = "Inline Skates"
+ENT.PrintName = "#inline_skates.entity_inline_skates"
 -- Not spawnable itself: every registered model is its own class derived from this one.
 ENT.Spawnable = false
 ENT.RenderGroup = RENDERGROUP_OPAQUE

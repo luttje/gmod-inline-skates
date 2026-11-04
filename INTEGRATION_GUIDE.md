@@ -91,6 +91,8 @@ TRICK.keys = "[+attack2] + [+back]"
 TRICK.description = "Your hand reaches behind to grab the heel of your skate."
 ```
 
+To translate them, see [Translating your additions](#translating-your-additions).
+
 ## Adding your own guide chapters
 Using the **Skate Guide** binder (or running `inline_skates_guide`) opens a window of chapters on skating. Each chapter
 is a `cl_` file in `lua/inline_skates/guide/`, and the addon loads every file in that folder on the client, so another
@@ -119,6 +121,29 @@ player has bound to it. To add a block type of your own, call `inlineSkates.guid
 where `build(parent, block)` adds the block's panels to `parent`, docked to the top. The built-in block types are in
 [`lua/inline_skates/cl_guide.lua`](lua/inline_skates/cl_guide.lua), and the built-in chapters in
 [`lua/inline_skates/guide/`](lua/inline_skates/guide/).
+
+## Translating your additions
+The addon's own text lives in [`lua/inline_skates/languages/`](lua/inline_skates/languages/), and every phrase in it
+is added to GMod's [language library](https://wiki.facepunch.com/gmod/language) as `inline_skates.<key>`. Trick names,
+keys and descriptions, guide chapter titles and the text in guide blocks can each be plain text or a phrase starting
+with `#`, which is translated when it's shown. To translate your own, add phrases with `language.Add` on the client
+and use their keys:
+
+```lua
+-- In a shared file, before the trick or chapter is registered
+if (CLIENT) then
+  local names = { en = "Stalefish", de = "Stalefish-Grab" }
+
+  language.Add("myaddon.stalefish", names[GetConVar("gmod_language"):GetString()] or names.en)
+end
+
+TRICK.name = "#myaddon.stalefish"
+```
+
+`inlineSkates.lang.translate(text)` gives you the translated text of a phrase (and plain text as it is), and
+`inlineSkates.lang.get(key, values)` one of the addon's own phrases, with each `{name}` in it filled in from `values`.
+On the server, both give English, as GMod's language library only exists on the client. The same goes for a trick's
+`GetLandedName`.
 
 ## Hooks
 These hooks let gamemodes and other addons react to skaters. They run on the server, except for the HUD ones.

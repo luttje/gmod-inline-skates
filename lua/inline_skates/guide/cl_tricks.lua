@@ -1,40 +1,32 @@
--- Where each contact a trick allows has it done, in the order they're listed.
-local CONTACT_PLACES = {
-  { contact = "none", place = "in the air" },
-  { contact = "ground", place = "on the ground" },
-}
+-- The contacts a trick can allow, in the order the places they're done in are listed.
+local CONTACTS = { "none", "ground" }
 
 --- @param trick table
 --- @return string # Such as "in the air"
 local function getTrickPlaces(trick)
   local places = {}
 
-  for _, contactPlace in ipairs(CONTACT_PLACES) do
-    if (trick.contact[contactPlace.contact]) then
-      places[#places + 1] = contactPlace.place
+  for _, contact in ipairs(CONTACTS) do
+    if (trick.contact[contact]) then
+      places[#places + 1] = inlineSkates.lang.get("tricks_place_" .. contact)
     end
   end
 
-  return table.concat(places, " or ")
+  return table.concat(places, inlineSkates.lang.get("tricks_place_separator"))
 end
 
 inlineSkates.guide.registerChapter({
   id = "tricks",
-  title = "Tricks",
+  title = "#inline_skates.chapter_tricks",
   order = 40,
   -- A function, so it lists every trick registered by then and the server's current settings.
   content = function()
     if (not inlineSkates.getTuningBool("tricks")) then
-      return {
-        "This server has turned tricks off. You can still jump, tip forward and back and spine transfer, see In the "
-        .. "air.",
-      }
+      return { "#inline_skates.tricks_disabled" }
     end
 
-    local blocks = {
-      "Get some air and throw down. Grabs last as long as you hold their keys, while spins and flips keep going, so "
-      .. "let go in time to land them.",
-    }
+    --- @type (table|string)[]
+    local blocks = { "#inline_skates.tricks_intro" }
 
     for _, trick in ipairs(inlineSkates.trick.getAll()) do
       blocks[#blocks + 1] = {
@@ -46,28 +38,22 @@ inlineSkates.guide.registerChapter({
       }
     end
 
-    blocks[#blocks + 1] = { type = "heading", text = "Combos" }
-    blocks[#blocks + 1] = "Tricks combine. Try these to get started:"
+    blocks[#blocks + 1] = { type = "heading", text = "#inline_skates.tricks_combos" }
+    blocks[#blocks + 1] = "#inline_skates.tricks_combos_intro"
     blocks[#blocks + 1] = {
       type = "controls",
       rows = {
-        { "Double-tap [+back], then [+attack2]", "Backflip safety grab" },
-        { "[+attack] + [+moveleft] / [+moveright]", "Mute grab 360" },
+        { "#inline_skates.tricks_combo_backflip_safety_grab_keys", "#inline_skates.tricks_combo_backflip_safety_grab" },
+        { "[+attack] + [+moveleft] / [+moveright]",                "#inline_skates.tricks_combo_mute_grab_360" },
       },
     }
     blocks[#blocks + 1] = {
       type = "tip",
-      text = string.format(
-        "Land your flips upright and your spins facing along the way you're going: forwards or backwards both work, "
-        .. "but more than %d° off knocks you over. Let go of the keys early and the trick finishes its turn by "
-        .. "itself.",
-        math.Round(inlineSkates.getTuning("trick_land_tolerance"))
-      ),
+      text = inlineSkates.lang.get("tricks_tip_landing", {
+        degrees = math.Round(inlineSkates.getTuning("trick_land_tolerance")),
+      }),
     }
-    blocks[#blocks + 1] = {
-      type = "tip",
-      text = "Landed a 180? You carry on skating backwards, until you turn round to face forwards again.",
-    }
+    blocks[#blocks + 1] = { type = "tip", text = "#inline_skates.tricks_tip_180" }
 
     return blocks
   end,

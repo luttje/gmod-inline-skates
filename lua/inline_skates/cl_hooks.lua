@@ -7,6 +7,14 @@ local SPEED_UNIT_SCALES = {
   ["units"] = 1,
 }
 
+local SPEED_UNIT_PHRASES = {
+  ["km/h"] = "unit_kmh",
+  ["kmh"] = "unit_kmh",
+  ["mp/h"] = "unit_mph",
+  ["mph"] = "unit_mph",
+  ["units"] = "unit_units",
+}
+
 -- The skater's own sequence would twist the upper body towards where they look, which the pose does itself.
 local ZEROED_POSE_PARAMETERS = { "aim_yaw", "aim_pitch", "body_yaw", "spine_yaw", "move_x", "move_y" }
 
@@ -560,7 +568,9 @@ hook.Add("HUDPaint", "inlineSkates.hud", function()
 
   if (speedUnitScale and hook.Run("HUDShouldDraw", "InlineSkatesSpeedometer") ~= false) then
     draw.SimpleTextOutlined(
-      string.format("%d %s", math.Round(math.abs(speed) * speedUnitScale), speedUnit),
+      string.format(
+        "%d %s", math.Round(math.abs(speed) * speedUnitScale), inlineSkates.lang.get(SPEED_UNIT_PHRASES[speedUnit])
+      ),
       "DermaLarge",
       centerX,
       speedometerY,
